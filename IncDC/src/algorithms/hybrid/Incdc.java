@@ -64,7 +64,7 @@ public class Incdc extends EvidenceSetBuilder {
         System.out.println("building index");
         long indexstart=System.currentTimeMillis();
 
-        Chains chains = new Chains(origin.getTotal().getdc(), input_data, alpha, column,columnSet);
+        Chains chains = new Chains(origin.getTotal().getDc(), input_data, alpha, column,columnSet);
 
         long indexend=System.currentTimeMillis();
         System.out.println("bulid index time : "+(indexend-indexstart)+" ms");

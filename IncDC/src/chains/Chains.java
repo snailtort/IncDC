@@ -15,7 +15,6 @@ public class Chains {
 	public Map<Integer, String> column;
 	public int[][] diff;
 
-	public Chains(){}
 	public Chains(List<DenialConstraint> dcs, int[][] input, double alpha, Map<Integer, String> column,Set<Integer> columnList/*, PredicateBuilder predicates*/) throws Exception {
 		int[] contain=new int[dcs.size()];
 		this.column=column;
@@ -74,60 +73,9 @@ public class Chains {
 			}
 		}
 
-//		for(int i=0;i<dcs.size();i++){
-//			//处理仅有两个谓词的情况
-//			if(dcs.get(i).getPredicateCount()==2) {
-//				Predicate pre1 = dcs.get(i).predicates[0];
-//				Predicate pre2 = dcs.get(i).predicates[1];
-//				/**
-//				 * 前置条件判断
-//				 * 只判断一个操作数是因为我没有考虑跨列 跨列本来也不多
-//				 * 如果检查跨列应该检查所有操作数
-//				 */
-//				if(columnList.contains(pre1.getOperand1().getColumnIndex()) &&columnList.contains(pre2.getOperand1().getColumnIndex())){
-//					//contain[i]=1;
-//					continue;
-//				}
-//
-//				//某一op为≠，未考虑全是≠的情况以及≠为string的情况
-//				if(pre1.getopindex()==-1&&!(isString(pre1.getOperand1()))){
-//					dealWithUne(input,pre1,pre2);
-//					contain[i]=1;
-//					continue;
-//				}
-//				if(pre2.getopindex()==-1&&!(isString(pre2.getOperand1()))){
-//					dealWithUne(input,pre2,pre1);
-//					contain[i]=1;
-//					continue;
-//				}
-//				//有跨列跨元组谓词时
-//				if(!pre1.getOperand1().getcolumn().equals(pre1.getOperand2().getcolumn())&&(!pre2.getOperand1().getcolumn().equals(pre2.getOperand2().getcolumn()))){
-//					continue;
-//				}
-//				else if(!pre1.getOperand1().getcolumn().equals(pre1.getOperand2().getcolumn())||(!pre2.getOperand1().getcolumn().equals(pre2.getOperand2().getcolumn()))){
-//					contain[i]=1;
-//					continue;
-//				}
-//				if(contain[i]==0){
-//					//不等式索引
-////					Builder ber;
-////					if(diff[getIndex(pre1.getOperand1())+1][getIndex(pre1.getOperand1())+1]>diff[getIndex(pre2.getOperand1())+1][getIndex(pre2.getOperand1())+1])
-////						ber=new Builder(input,pre1,pre2, pre1.getopindex(), pre2.getopindex(),0,0, column);
-////					else
-////						ber=new Builder(input,pre2,pre1, pre2.getopindex(), pre1.getopindex(),0,0, column);
-////					System.out.println("after if contain index:"+ber.toString());
-////					indexes.add(ber);
-//					contain[i]=1;
-//				}
-//			}
-//		}
-
 		for(int i=0;i<dcs.size();i++) {
 			if(contain[i]==1) continue;
 			for(int j=0;j<dcs.get(i).getPredicateCount();j++) {
-				if(dcs.get(i).predicates[j].getOperand1().getIndex()==dcs.get(i).predicates[j].getOperand2().getIndex()){
-					continue;
-				}
 				if(dcs.get(i).predicates[j].getopindex()==2) { //op为equal
 					if(sig.contains(getIndex(dcs.get(i).predicates[j].getOperand1()))) {
 						contain[i]=1;
@@ -135,12 +83,10 @@ public class Chains {
 					}
 					if(contain[i]==0&&diff[getIndex(dcs.get(i).predicates[j].getOperand1())+1][getIndex(dcs.get(i).predicates[j].getOperand1())+1]>alpha*count) {
 						Predicate pre1=new Predicate(Operator.GREATER_EQUAL,dcs.get(i).predicates[j].getOperand1(),dcs.get(i).predicates[j].getOperand2());
-
 						if(columnList.contains(pre1.getOperand1().getColumnIndex()) ){
 							continue;
 						}
 						Builder ber=new Builder(input,pre1,pre1,2,2,0,0,column);//是否用于A=
-						System.out.println("A= A= (more predicates) builder:"+ber.toString());
 						indexes.add(ber);
 						sig.add(getIndex(dcs.get(i).predicates[j].getOperand1()));
 						contain[i]=1;
@@ -148,13 +94,6 @@ public class Chains {
 				}
 			}
 			if(contain[i]==0) {
-				int in=0;
-				for(int j=0;j<dcs.get(i).getPredicateCount();j++) {
-					if(dcs.get(i).predicates[j].getOperator()==Operator.EQUAL) in++;
-				}
-				if(in==dcs.get(i).getPredicateCount()||in==dcs.get(i).getPredicateCount()-1){
-					continue;
-				}
 				for(int j=0;j<dcs.get(i).getPredicateCount()-1;j++) {
 					for(int k=j+1;k<dcs.get(i).getPredicateCount();k++) {
 						Predicate pre1 = dcs.get(i).predicates[j];
@@ -188,11 +127,8 @@ public class Chains {
 			String sr=s;
 			int index1=Integer.parseInt(sr.substring(0,sr.indexOf(" ")));
 			sr=sr.substring(sr.indexOf(" ")+1);
-			int index2=Integer.parseInt(sr.substring(0,sr.indexOf(" ")));
 			sr=sr.substring(sr.indexOf(" ")+1);
 			int index3=Integer.parseInt(sr.substring(0,sr.indexOf(" ")));
-			sr=sr.substring(sr.indexOf(" ")+1);
-			int index4=Integer.parseInt(sr);
 			int ind=Math.max(index1, index3);
 			int in=index1+index3-ind;
 			double score =Math.abs(p[in+1][ind+1]);
@@ -328,36 +264,30 @@ public class Chains {
 		}
 		for(int i=0;i<dcs.size();i++){
 			if(contain[i]==1) continue;
-			if(dcs.get(i).getPredicateCount()==2) {
+			if(dcs.get(i).getPredicateCount()==1){
 				Predicate pre1 = dcs.get(i).predicates[0];
-				Predicate pre2 = dcs.get(i).predicates[1];
-				if(columnList.contains(pre1.getOperand1().getColumnIndex()) &&columnList.contains(pre2.getOperand1().getColumnIndex())){
+				if (!pre1.getOperand1().getcolumn().equals(pre1.getOperand2().getcolumn())){
+					dealWithCross1(input, pre1);
+					contain[i] = 1;
 					continue;
 				}
-
-				if(pre1.getopindex()==-1&&!(isString(pre1.getOperand1()))){
-					dealWithUne(input,pre1,pre2);
-					contain[i]=1;
-					continue;
-				}
-				if(pre2.getopindex()==-1&&!(isString(pre2.getOperand1()))){
-					dealWithUne(input,pre2,pre1);
-					contain[i]=1;
-					continue;
-				}
-				if(!pre1.getOperand1().getcolumn().equals(pre1.getOperand2().getcolumn())&&(!pre2.getOperand1().getcolumn().equals(pre2.getOperand2().getcolumn()))){
-					continue;
-				}
-				else if(!pre1.getOperand1().getcolumn().equals(pre1.getOperand2().getcolumn())||(!pre2.getOperand1().getcolumn().equals(pre2.getOperand2().getcolumn()))){
-					contain[i]=1;
-					continue;
-				}
-				if(contain[i]==0){
-					contain[i]=1;
+			}
+			for(int j=0;j<dcs.get(i).getPredicateCount();j++){
+				if(dcs.get(i).predicates[j].getopindex()==2) { //op为equal
+					if(sig.contains(getIndex(dcs.get(i).predicates[j].getOperand1()))) {
+						contain[i]=1;
+						break;
+					}
+					if(contain[i]==0) {
+						Predicate pre1=new Predicate(Operator.GREATER_EQUAL,dcs.get(i).predicates[j].getOperand1(),dcs.get(i).predicates[j].getOperand2());
+						Builder ber=new Builder(input,pre1,pre1,2,2,0,0,column);//是否用于A=
+						indexes.add(ber);
+						sig.add(getIndex(dcs.get(i).predicates[j].getOperand1()));
+						contain[i]=1;
+					}
 				}
 			}
 		}
-
 		for(int i=0;i<contain.length;i++)
 			if(contain[i]!=1){
 				for(int j=0;j<dcs.get(i).getPredicateCount()-1;j++) {
@@ -366,9 +296,8 @@ public class Chains {
 						Predicate pre2 = dcs.get(i).predicates[k];
 						if (pre1.getopindex() > -1 && pre2.getopindex() > -1) {
 							if (!pre1.getOperand1().getcolumn().equals(pre1.getOperand2().getcolumn()) && (!pre2.getOperand1().getcolumn().equals(pre2.getOperand2().getcolumn()))) {
-								dealWithCross(input, pre1, pre2);
+								dealWithCross2(input, pre1, pre2);
 								contain[i] = 1;
-								continue;
 							}
 						}
 					}
@@ -453,12 +382,7 @@ public class Chains {
 		}
 	}
 
-	private boolean isString(ColumnOperand c1){
-		if(c1.getcolumn().contains("String"))
-			return true;
-		else
-			return false;
-	}
+
 
 	private void dealWithUne(int[][] input,Predicate pre1,Predicate pre2) throws Exception {
 		Predicate pre3 = new Predicate(Operator.GREATER, pre1.getOperand1(), pre1.getOperand2());
@@ -471,7 +395,26 @@ public class Chains {
 		indexes.add(ber2);
 	}
 
-	private void dealWithCross(int[][] input, Predicate pre1, Predicate pre2) throws Exception {
+	private void dealWithCross1(int[][] input, Predicate pre1) throws Exception {
+		ColumnOperand a0=new ColumnOperand(pre1.getOperand1().getColumn(),0);
+		ColumnOperand a1=new ColumnOperand(pre1.getOperand1().getColumn(),1);
+		ColumnOperand c0=new ColumnOperand(pre1.getOperand2().getColumn(),0);
+		ColumnOperand c1=new ColumnOperand(pre1.getOperand2().getColumn(),1);
+		Predicate pre3 = new Predicate(pre1.getOperator(),a0,a1);
+		Predicate pre4 = new Predicate(pre1.getOperator().getSymmetric(), c0,c1);
+		Builder ber = new Builder(input,pre3,pre4,6,6,getIndex(pre1.getOperand2()),getIndex(pre1.getOperand1()),column);
+		boolean flag = false;
+		for(Builder b:indexes){
+			if(b.toString().equals(ber.toString())||b.toString().equals(ber.tosymString())){
+				flag = true;
+			}
+		}
+		if(!flag){
+			indexes.add(ber);
+		}
+	}
+
+	private void dealWithCross2(int[][] input, Predicate pre1, Predicate pre2) throws Exception {
 		ColumnOperand a0=new ColumnOperand(pre1.getOperand1().getColumn(),0);
 		ColumnOperand a1=new ColumnOperand(pre1.getOperand1().getColumn(),1);
 		ColumnOperand b0=new ColumnOperand(pre2.getOperand1().getColumn(),0);
@@ -504,11 +447,9 @@ public class Chains {
 			}
 			if(!flag1){
 				indexes.add(ber1);
-				System.out.println("cross builder1: "+ber1.toString());
 			}
 			if(!flag2){
 				indexes.add(ber2);
-				System.out.println("cross builder2: "+ber2.toString());
 			}
 		}
 	}

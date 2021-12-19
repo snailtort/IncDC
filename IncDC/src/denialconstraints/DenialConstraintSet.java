@@ -1,23 +1,17 @@
 package denialconstraints;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import ch.javasoft.bitset.IBitSet;
 import ch.javasoft.bitset.search.NTreeSearch;
 import chains.Builder;
+import evidenceset.build.Operator;
 import input.ParsedColumn;
 import predicates.Predicate;
 import predicates.sets.Closure;
 import predicates.sets.PredicateBitSet;
 import predicates.sets.PredicateSetFactory;
-
-import java.util.Set;
 
 import static predicates.sets.PredicateBitSet.indexProvider;
 
@@ -161,4 +155,30 @@ public class DenialConstraintSet implements Iterable<DenialConstraint> {
 		return dcs;
 	}
 
+	public List<DenialConstraint> getDc() {
+		// TODO Auto-generated method stub
+		List<DenialConstraint> dcs =new ArrayList<>();
+		for(DenialConstraint dc:constraints){
+			List<Predicate> dc1 = Arrays.asList(dc.getPredicates());
+			List<Predicate> dc2 = Arrays.asList(dc.getPredicates());
+			int pos = -1;
+			for(int i = 0; i < dc.getPredicateCount(); i++){
+				if(dc.predicates[i].getopindex()<0 && !dc.predicates[i].getOperand1().getcolumn().contains("String")){
+					pos = i;
+					break;
+				}
+			}
+			if(pos!=-1){
+				Predicate pre = dc.predicates[pos];
+				dc1.set(pos,new Predicate(Operator.GREATER, pre.getOperand1(), pre.getOperand2()));
+				dc2.set(pos,new Predicate(Operator.LESS, pre.getOperand1(), pre.getOperand2()));
+				dcs.add(new DenialConstraint(dc1));
+				dcs.add(new DenialConstraint(dc2));
+			}
+			else{
+				dcs.add(dc);
+			}
+		}
+		return dcs;
+	}
 }
