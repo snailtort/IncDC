@@ -2,7 +2,7 @@
 
 IncDC.jar needs five parameters: original data D, incremental data △D, DCs discovered on D, tuple numbers in D, tuple numbers in △D.
 
-For example, the command "java -jar IncDC.jar atom_original.csv atom_incremental.csv DC_atom_example.txt 105000 35000 0" is to run incremental DC discovery on D + △D, 
+For example, the command "java -jar IncDC.jar atom_original.csv atom_incremental.csv DC_atom_example.txt 105000 35000" is to run incremental DC discovery on D + △D, 
 where D is atom_original.csv, △D is atom_incremental.csv, DCs discovered on D is in DC_atom_example.txt. In this run, we use 105000 tuples in D and 35000 tuples in △D. 
 Before running IncDC, please run Hydra or DCFinder to discover DCs on atom_original.csv and save results in DC_atom_example.txt in advance.
 
