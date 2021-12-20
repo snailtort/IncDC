@@ -295,21 +295,23 @@ public class Builder extends EvidenceSetBuilder {
 						q=temp;
 					}
 					if(p.right!=null) p=p.right;
-					while(p.key1>Integer.MIN_VALUE) {
-						int op01 = getop(key1,p.key1);
-						int op02= getop(key2,p.key2);
-						if(p.key1>Integer.MIN_VALUE&&p.key1<Integer.MAX_VALUE&&samedir(op01,index21)&&samedir(op02,index4)) {
-							for(int i:p.value) {
-								getEvidence(i,data.length-add_data.length+k,evidence,pairs);
+					if(!isCross){
+						while(p.key1>Integer.MIN_VALUE) {
+							int op01 = getop(key1,p.key1);
+							int op02= getop(key2,p.key2);
+							if(p.key1>Integer.MIN_VALUE&&p.key1<Integer.MAX_VALUE&&samedir(op01,index21)&&samedir(op02,index4)) {
+								for(int i:p.value) {
+									getEvidence(i,data.length-add_data.length+k,evidence,pairs);
+								}
 							}
-						}
-						else if(p.key1>Integer.MIN_VALUE&&p.key1<Integer.MAX_VALUE&&samedir(4-op01,index21)&&samedir(4-op02,index4)) {
-							for(int i:p.value) {
-								getEvidence(i,data.length-add_data.length+k,evidence,pairs);
-							}
+							else if(p.key1>Integer.MIN_VALUE&&p.key1<Integer.MAX_VALUE&&samedir(4-op01,index21)&&samedir(4-op02,index4)) {
+								for(int i:p.value) {
+									getEvidence(i,data.length-add_data.length+k,evidence,pairs);
+								}
 
+							}
+							p=p.left;
 						}
-						p=p.left;
 					}
 					while(q.key1<Integer.MAX_VALUE) {
 						int op01 = getop(key1,q.key1);
