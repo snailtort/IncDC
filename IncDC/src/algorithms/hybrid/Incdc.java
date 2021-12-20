@@ -20,7 +20,7 @@ import java.util.*;
 public class Incdc extends EvidenceSetBuilder {
     public long time;
 
-    public DenialConstraintSet run (Input data, PredicateBuilder predicates, OriginDC origin, double alpha, int n, int m,int x, int size/**/) throws Exception {
+    public DenialConstraintSet run (Input data, PredicateBuilder predicates, OriginDC origin, double alpha, int n, int m, int size) throws Exception {
         ParsedColumn[] cols = data.getColumns();
         int[][] input = data.getInts();
 
@@ -46,7 +46,7 @@ public class Incdc extends EvidenceSetBuilder {
             }
         }
 
-        int threshold=x;
+        int threshold=(m+n)/1000;
         Set<Integer> columnSet=new HashSet<>();
         for(int i=0;i<=columncount;i++){
             Set<Integer> set=new HashSet<>();

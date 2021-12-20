@@ -21,25 +21,25 @@ public class Main{
 //		String dcline="example//DC_atom_example.txt";// DCs on original dataset
 //		int n=10500;// tuples in original dataset
 //		int m=3500;// tuples in incremental dataset
-//		int x=0;// threshold for column select
+
 
 		String line =args[0];
 		String incline =args[1];
 		String dcline =args[2];
 		int n=Integer.valueOf(args[3]);
 		int m=Integer.valueOf(args[4]);
-		int x=Integer.valueOf(args[5]);
+
 
 		int size=m;
 		double alpha = 0.6;
+		if(args.length>=6) {
+			if(args[5].contains("size=")) {String s=args[5].replaceAll("size=","");size=Integer.parseInt(s);}
+			if(args[5].contains("l=")) {String s=args[5].replaceAll("l=","");alpha=1-Double.parseDouble(s);}
+		}
+
 		if(args.length>=7) {
 			if(args[6].contains("size=")) {String s=args[6].replaceAll("size=","");size=Integer.parseInt(s);}
 			if(args[6].contains("l=")) {String s=args[6].replaceAll("l=","");alpha=1-Double.parseDouble(s);}
-		}
-
-		if(args.length>=8) {
-			if(args[7].contains("size=")) {String s=args[7].replaceAll("size=","");size=Integer.parseInt(s);}
-			if(args[7].contains("l=")) {String s=args[7].replaceAll("l=","");alpha=1-Double.parseDouble(s);}
 		}
 		File file = new File(line);
 		File incfile = new File(incline);
@@ -55,13 +55,12 @@ public class Main{
 		System.out.println("tuples in a single round : "+size);
 		PredicateBuilder predicates = new PredicateBuilder(input, false, 0.30d);
 		System.out.println("predicate space: "+predicates.getPredicates().size());
-		System.out.println("threshold x: "+x);
 		OriginDC origin=new OriginDC(od,input.getColumns());
 		System.out.println("total constraints size : "+origin.total.size());
 		Incdc incdc = new Incdc();
 		System.out.println("------------------ now is IncDC for DC -------------------");
 
-		DenialConstraintSet dcs = incdc.run(input,predicates,origin,alpha,n,m,x,size);
+		DenialConstraintSet dcs = incdc.run(input,predicates,origin,alpha,n,m,size);
 		System.out.println("total used time(excluding time for building indexes) : "+ incdc.time+ " ms");
 		System.out.println("minimal DCs size : "+dcs.size());
 
