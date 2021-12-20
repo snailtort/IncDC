@@ -16,37 +16,34 @@ public class Main{
 
 	public static void main(String[] args) throws Exception {
 
-		String line="example//atom_original.csv";// original dataset
-		String incline="example//atom_incremental.csv";// incremental dataset
-		String dcline="example//DC_atom_example.txt";// DCs on original dataset
-		String indexline="example//index_example_atom.txt";// index file , namely predicate space
-		int n=10500;// tuples in original dataset
-		int m=3500;// tuples in incremental dataset
-		int x=0;// threshold for column select
+//		String line="example//atom_original.csv";// original dataset
+//		String incline="example//atom_incremental.csv";// incremental dataset
+//		String dcline="example//DC_atom_example.txt";// DCs on original dataset
+//		int n=10500;// tuples in original dataset
+//		int m=3500;// tuples in incremental dataset
+//		int x=0;// threshold for column select
 
-//		String line =args[0];
-//		String incline =args[1];
-//		String odline =args[2];
-//		String indexline=args[3];
-//		int n=Integer.valueOf(args[4]);
-//		int m=Integer.valueOf(args[5]);
-//		int x=Integer.valueOf(args[6]);
+		String line =args[0];
+		String incline =args[1];
+		String dcline =args[2];
+		int n=Integer.valueOf(args[3]);
+		int m=Integer.valueOf(args[4]);
+		int x=Integer.valueOf(args[5]);
 
 		int size=m;
 		double alpha = 0.6;
+		if(args.length>=7) {
+			if(args[6].contains("size=")) {String s=args[6].replaceAll("size=","");size=Integer.parseInt(s);}
+			if(args[6].contains("l=")) {String s=args[6].replaceAll("l=","");alpha=1-Double.parseDouble(s);}
+		}
+
 		if(args.length>=8) {
 			if(args[7].contains("size=")) {String s=args[7].replaceAll("size=","");size=Integer.parseInt(s);}
 			if(args[7].contains("l=")) {String s=args[7].replaceAll("l=","");alpha=1-Double.parseDouble(s);}
 		}
-
-		if(args.length>=9) {
-			if(args[8].contains("size=")) {String s=args[8].replaceAll("size=","");size=Integer.parseInt(s);}
-			if(args[8].contains("l=")) {String s=args[8].replaceAll("l=","");alpha=1-Double.parseDouble(s);}
-		}
 		File file = new File(line);
 		File incfile = new File(incline);
 		File od = new File(dcline);
-		File index=new File(indexline);
 
 		RelationalInput data = new RelationalInput(file);
 		RelationalInput incdata = new RelationalInput(incfile);
@@ -56,10 +53,9 @@ public class Main{
 		System.out.println("origin data size : "+n);
 		System.out.println("incremental data size : "+m);
 		System.out.println("tuples in a single round : "+size);
-		PredicateBuilder predicates = new PredicateBuilder(index,input);
+		PredicateBuilder predicates = new PredicateBuilder(input, false, 0.30d);
 		System.out.println("predicate space: "+predicates.getPredicates().size());
 		System.out.println("threshold x: "+x);
-//		PredicateBuilder predicates = new PredicateBuilder(input, false, 0.30d);
 		OriginDC origin=new OriginDC(od,input.getColumns());
 		System.out.println("total constraints size : "+origin.total.size());
 		Incdc incdc = new Incdc();

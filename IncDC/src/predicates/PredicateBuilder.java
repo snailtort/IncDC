@@ -38,43 +38,6 @@ public class PredicateBuilder {
 		});
 	}
 
-	public PredicateBuilder(File index,Input input) throws IOException {
-		predicateGroups = new ArrayList<>();
-		BufferedReader br = new BufferedReader(new FileReader(index));
-		String s=null;
-		int lasti1=-1,lastj1=-1;
-		Set<Predicate> tempPres = new HashSet<Predicate>();
-		while((s=br.readLine())!=null){
-			String[] temp=s.split(" ");
-			Operator op=getoperator(temp[1]);
-			int i;
-			int i1=0,j1=0;
-			for(i=0;i<input.getColumns().length;i++){
-				if(temp[0].substring(3).equals((input.getColumns()[i]).toString()))
-					i1=i;
-				if(temp[2].substring(3).equals((input.getColumns()[i]).toString()))
-					j1=i;
-			}
-			ColumnOperand operand1=new ColumnOperand(input.getColumns()[i1], Integer.parseInt(temp[0].substring(1,2)));
-			ColumnOperand operand2=new ColumnOperand(input.getColumns()[j1], Integer.parseInt(temp[2].substring(1,2)));
-			Predicate res= new Predicate(op,operand1,operand2);
-			indexProvider.getIndex(res);
-			predicates.add(res);
-			if((lasti1==-1&&lastj1==-1)||(lasti1==i1&&lastj1==j1)){
-				tempPres.add(res);
-			}
-			else{
-				this.predicateGroups.add(tempPres);
-				tempPres=new HashSet<>();
-				tempPres.add(res);
-
-			}
-			lasti1=i1;lastj1=j1;
-		}
-		this.predicateGroups.add(tempPres);
-	}
-
-
 	public Operator getoperator(String s) {
 		switch(s) {
 			case ">=" : return Operator.GREATER_EQUAL;
