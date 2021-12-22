@@ -25,13 +25,13 @@ public abstract class EvidenceSetBuilder {
 				continue;
 
 			PredicateBitSet[] list = map.get(p);
-			if (p.isJoinable()) {
+			if (p.getC1().getType().equals(String.class)) {
 				if (equals(i, i, p))
 					set.addAll(list[2]);
 				else
 					set.addAll(list[3]);
 			}
-			if (p.isComparable()) {
+			else {
 				int compare2 = compare(i, i, p);
 				if (compare2 < 0) {
 					set.addAll(list[7]);
@@ -51,13 +51,13 @@ public abstract class EvidenceSetBuilder {
 		// which predicates are satisfied by these two lines?
 		for (ColumnPair p : pairs) {
 			PredicateBitSet[] list = map.get(p);
-			if (p.isJoinable()) {
+			if (p.getC1().getType().equals(String.class)) {
 				if (equals(i, j, p))
 					set.addAll(list[0]);
 				else
 					set.addAll(list[1]);
 			}
-			if (p.isComparable()) {
+			else {
 				int compare = compare(i, j, p);
 				if (compare < 0) {
 					set.addAll(list[4]);
@@ -110,22 +110,28 @@ public abstract class EvidenceSetBuilder {
 
 				addIfValid(p, list[4], Operator.LESS, 1);
 				addIfValid(p, list[4], Operator.LESS_EQUAL, 1);
+				addIfValid(p, list[4], Operator.UNEQUAL, 1);
 
 				addIfValid(p, list[5], Operator.LESS_EQUAL, 1);
 				addIfValid(p, list[5], Operator.GREATER_EQUAL, 1);
+				addIfValid(p, list[5], Operator.EQUAL, 1);
 
 				addIfValid(p, list[6], Operator.GREATER_EQUAL, 1);
 				addIfValid(p, list[6], Operator.GREATER, 1);
+				addIfValid(p, list[6], Operator.UNEQUAL, 1);
 
 				if (!p.getC1().equals(p.getC2())) {
 					addIfValid(p, list[7], Operator.LESS, 0);
 					addIfValid(p, list[7], Operator.LESS_EQUAL, 0);
+					addIfValid(p, list[7], Operator.UNEQUAL, 0);
 
 					addIfValid(p, list[8], Operator.LESS_EQUAL, 0);
 					addIfValid(p, list[8], Operator.GREATER_EQUAL, 0);
+					addIfValid(p, list[8], Operator.EQUAL, 0);
 
 					addIfValid(p, list[9], Operator.GREATER_EQUAL, 0);
 					addIfValid(p, list[9], Operator.GREATER, 0);
+					addIfValid(p, list[9], Operator.UNEQUAL, 0);
 				}
 			}
 
