@@ -56,11 +56,6 @@ public class Incdc extends EvidenceSetBuilder {
             if(set.size()<threshold)
                 columnSet.add(i);
         }
-
-        System.out.println("attribute: ");
-        for(int i:columnSet)
-            System.out.println(i);
-
         System.out.println("building index");
         long indexstart=System.currentTimeMillis();
 
