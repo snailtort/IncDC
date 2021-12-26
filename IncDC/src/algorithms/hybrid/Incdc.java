@@ -46,7 +46,7 @@ public class Incdc extends EvidenceSetBuilder {
             }
         }
 
-        int threshold=(m+n)/1000;
+        int threshold=(m+n)/10000;
         Set<Integer> columnSet=new HashSet<>();
         for(int i=0;i<=columncount;i++){
             Set<Integer> set=new HashSet<>();

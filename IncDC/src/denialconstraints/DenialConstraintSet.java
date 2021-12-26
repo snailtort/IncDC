@@ -159,19 +159,23 @@ public class DenialConstraintSet implements Iterable<DenialConstraint> {
 		// TODO Auto-generated method stub
 		List<DenialConstraint> dcs =new ArrayList<>();
 		for(DenialConstraint dc:constraints){
-			List<Predicate> dc1 = Arrays.asList(dc.getPredicates());
-			List<Predicate> dc2 = Arrays.asList(dc.getPredicates());
-			int pos = -1;
+			List<Predicate> dc1 = new ArrayList<>();
+			List<Predicate> dc2 = new ArrayList<>();
+			Predicate pre = new Predicate();
+			boolean flag =false;
 			for(int i = 0; i < dc.getPredicateCount(); i++){
-				if(dc.predicates[i].getopindex()<0 && !dc.predicates[i].getOperand1().getcolumn().contains("String")){
-					pos = i;
-					break;
+				if(!flag && dc.predicates[i].getopindex()<0 && !dc.predicates[i].getOperand1().getcolumn().contains("String")){
+					pre = dc.predicates[i];
+					flag = true;
+				}
+				else{
+					dc1.add(dc.predicates[i]);
+					dc2.add(dc.predicates[i]);
 				}
 			}
-			if(pos!=-1){
-				Predicate pre = dc.predicates[pos];
-				dc1.set(pos,new Predicate(Operator.GREATER, pre.getOperand1(), pre.getOperand2()));
-				dc2.set(pos,new Predicate(Operator.LESS, pre.getOperand1(), pre.getOperand2()));
+			if(flag){
+				dc1.add(new Predicate(Operator.GREATER, pre.getOperand1(), pre.getOperand2()));
+				dc2.add(new Predicate(Operator.LESS, pre.getOperand1(), pre.getOperand2()));
 				dcs.add(new DenialConstraint(dc1));
 				dcs.add(new DenialConstraint(dc2));
 			}

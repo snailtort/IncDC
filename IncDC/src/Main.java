@@ -16,11 +16,11 @@ public class Main{
 
 	public static void main(String[] args) throws Exception {
 
-//		String line="example//atom_original.csv";// original dataset
-//		String incline="example//atom_incremental.csv";// incremental dataset
-//		String dcline="example//DC_atom_example.txt";// DCs on original dataset
-//		int n=10500;// tuples in original dataset
-//		int m=3500;// tuples in incremental dataset
+//		String line="example//airport_original.csv";// original dataset
+//		String incline="example//airport_incremental.csv";// incremental dataset
+//		String dcline="example//DC_airport_example.txt";// DCs on original dataset
+//		int n=30000;// tuples in original dataset
+//		int m=10000;// tuples in incremental dataset
 
 
 		String line =args[0];

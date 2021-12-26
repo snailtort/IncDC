@@ -88,6 +88,7 @@ public class Chains {
 						}
 						Builder ber=new Builder(input,pre1,pre1,2,2,0,0,column);//是否用于A=
 						indexes.add(ber);
+						System.out.println("A=:"+ber);
 						sig.add(getIndex(dcs.get(i).predicates[j].getOperand1()));
 						contain[i]=1;
 					}
@@ -120,7 +121,6 @@ public class Chains {
 				}
 			}
 		}
-
 		Set<String> set=new HashSet<>();
 		for(String s:map.keySet()) set.add(s);
 		for(String s:set) {
@@ -262,6 +262,21 @@ public class Chains {
 				}
 			}
 		}
+		for(int i=0;i<contain.length;i++)
+			if(contain[i]!=1){
+				for(int j=0;j<dcs.get(i).getPredicateCount()-1;j++) {
+					for (int k = j + 1; k < dcs.get(i).getPredicateCount(); k++) {
+						Predicate pre1 = dcs.get(i).predicates[j];
+						Predicate pre2 = dcs.get(i).predicates[k];
+						if (pre1.getopindex() > -1 && pre2.getopindex() > -1) {
+							if (!pre1.getOperand1().getcolumn().equals(pre1.getOperand2().getcolumn()) && (!pre2.getOperand1().getcolumn().equals(pre2.getOperand2().getcolumn()))) {
+								dealWithCross2(input, pre1, pre2);
+								contain[i] = 1;
+							}
+						}
+					}
+				}
+			}
 		for(int i=0;i<dcs.size();i++){
 			if(contain[i]==1) continue;
 			if(dcs.get(i).getPredicateCount()==1){
@@ -288,21 +303,6 @@ public class Chains {
 				}
 			}
 		}
-		for(int i=0;i<contain.length;i++)
-			if(contain[i]!=1){
-				for(int j=0;j<dcs.get(i).getPredicateCount()-1;j++) {
-					for (int k = j + 1; k < dcs.get(i).getPredicateCount(); k++) {
-						Predicate pre1 = dcs.get(i).predicates[j];
-						Predicate pre2 = dcs.get(i).predicates[k];
-						if (pre1.getopindex() > -1 && pre2.getopindex() > -1) {
-							if (!pre1.getOperand1().getcolumn().equals(pre1.getOperand2().getcolumn()) && (!pre2.getOperand1().getcolumn().equals(pre2.getOperand2().getcolumn()))) {
-								dealWithCross2(input, pre1, pre2);
-								contain[i] = 1;
-							}
-						}
-					}
-				}
-			}
 	}
 
 	private void sort(int[][] input, int[] order) {
@@ -380,19 +380,6 @@ public class Chains {
 			case 4: return Operator.LESS_EQUAL;
 			default: return Operator.UNEQUAL;
 		}
-	}
-
-
-
-	private void dealWithUne(int[][] input,Predicate pre1,Predicate pre2) throws Exception {
-		Predicate pre3 = new Predicate(Operator.GREATER, pre1.getOperand1(), pre1.getOperand2());
-		Predicate pre4 = new Predicate(Operator.LESS, pre1.getOperand1(), pre1.getOperand2());
-		Builder ber1=new Builder(input,pre3,pre2,1, pre2.getopindex(),0,0,column);
-		Builder ber2=new Builder(input,pre4,pre2,3, pre2.getopindex(), 0,0,column);
-		System.out.println("deal with une(ber1):"+ber1.toString());
-		System.out.println("deal with une(ber2):"+ber2.toString());
-		indexes.add(ber1);
-		indexes.add(ber2);
 	}
 
 	private void dealWithCross1(int[][] input, Predicate pre1) throws Exception {
