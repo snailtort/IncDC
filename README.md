@@ -2,7 +2,7 @@
 The incremental DC discovery algorithm, developed in this submission.
 
 ## Hydra and DCFinder
-[Hydra (resp. DCFinder)](https://github.com/HPI-Information-Systems/metanome-algorithms) has been implemented by student(s) of the information systems group at the Hasso-Plattner-Institut (HPI) in the context of the Metanome project. We are really grateful for the open source implementaion of Hydra and DCFinder. 
+[Hydra ](https://dl.acm.org/doi/10.14778/3192965.3192968)(resp. [DCFinder](https://dl.acm.org/doi/10.14778/3368289.3368293)) has been implemented by student(s) of the information systems group at the Hasso-Plattner-Institut (HPI) in the context of the Metanome project. We are really grateful for the open source implementaion of [Hydra and DCFinder](https://github.com/HPI-Information-Systems/metanome-algorithms) . 
 
 ## Dataset
 This folder stores all the experiment datasets, which can be split into original dataset D and incremental data set △D.
