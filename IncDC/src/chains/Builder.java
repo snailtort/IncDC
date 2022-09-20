@@ -38,6 +38,7 @@ public class Builder extends EvidenceSetBuilder implements Serializable {
 	public int addData1=-1;
 	public int addData2=-1;
 	public static Multimap<Integer, Integer> vioTuples = HashMultimap.create();
+	private static final long serialVersionUID = 1l;
 
 	public Builder(){}
 	public Builder(int[][] in, Predicate index1, Predicate index2, int index21, int index4, int addData1, int addData2, Map<Integer , String> column) {

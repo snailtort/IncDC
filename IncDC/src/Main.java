@@ -21,9 +21,7 @@ public class Main{
 //		String dcline="example//DC_airport_example.txt";// DCs on original dataset
 //		int n=30000;// tuples in original dataset
 //		int m=10000;// tuples in incremental dataset
-//		String indexLine = "example//aairport_original_index.txt";
-
-
+//		String indexLine = "example//airport_original_index.ind";
 
 		String line =args[0];
 		String incline =args[1];

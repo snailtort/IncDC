@@ -14,22 +14,22 @@ public class Main{
 
 	public static void main(String[] args) throws Exception {
 
-		String line="example//airport_original.csv";// original dataset
-		String dcline="example//DC_airport_example.txt";// DCs on original dataset
-		int n=30000;// tuples in original dataset
+//		String line="example//airport_original.csv";// original dataset
+//		String dcline="example//DC_airport_example.txt";// DCs on original dataset
+//		int n=30000;// tuples in original dataset
 
-//		String line =args[0];
-//		String dcline =args[1];
-//		int n=Integer.valueOf(args[2]);
+		String line =args[0];
+		String dcline =args[1];
+		int n=Integer.valueOf(args[2]);
 
 
 		double alpha = 0.6;
-//		if(args[3].contains("l=")) {String s=args[3].replaceAll("l=","");alpha=1-Double.parseDouble(s);}
+		if(args[3].contains("l=")) {String s=args[3].replaceAll("l=","");alpha=1-Double.parseDouble(s);}
 
 		File file = new File(line);
 		File dc = new File(dcline);
 
-		String indexLine = line.replaceAll(".csv", "_") + "index.txt";
+		String indexLine = line.replaceAll(".csv", "_") + "index.ind";
 		File indexFile = new File(indexLine);
 
 		RelationalInput data = new RelationalInput(file);
