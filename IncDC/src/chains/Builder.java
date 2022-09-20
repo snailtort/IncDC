@@ -1,36 +1,45 @@
 package chains;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import evidenceset.IEvidenceSet;
 import evidenceset.build.EvidenceSetBuilder;
 import evidenceset.build.Operator;
-import input.Column;
 import input.ColumnPair;
 import input.ParsedColumn;
 import predicates.Predicate;
 import predicates.operands.ColumnOperand;
 import predicates.sets.PredicateBitSet;
 
+import java.io.Serializable;
 import java.util.*;
 
 import static predicates.PredicateBuilder.predicates;
 
-public class Builder extends EvidenceSetBuilder {
-	public Predicate pre1;
-	public Predicate pre2;
+public class Builder extends EvidenceSetBuilder implements Serializable {
+	@JSONField(serialize = false)
+	public transient Predicate pre1;
+	@JSONField(serialize = false)
+	public transient Predicate pre2;
+	public String predicate1;
+	public String predicate2;
 	public int index21;
 	public int index4;
-	private int type=0;
-	private int flag;
+	public int type=0;
+	public int flag;
 	public int sim;
 	public Map<Integer , String> column;
 	private List<Skiplist> chains=new ArrayList<>();
-	private boolean isCross = false;
-	private int addData1=-1;
-	private int addData2=-1;
+	public Map<Integer, List<Integer>> equalMap1 = new HashMap<>();
+	public Map<Integer, List<Integer>> equalMap2 = new HashMap<>();
+	public boolean cross = false;
+	public int addData1=-1;
+	public int addData2=-1;
 	public static Multimap<Integer, Integer> vioTuples = HashMultimap.create();
 
+	public Builder(){}
 	public Builder(int[][] in, Predicate index1, Predicate index2, int index21, int index4, int addData1, int addData2, Map<Integer , String> column) {
 		if(index21==2&&index4==2) {
 			this.index21=index21;
@@ -41,14 +50,24 @@ public class Builder extends EvidenceSetBuilder {
 			this.flag=3;
 			this.type=3;
 			sim=4;
-			sort(in, new int[] {getIndex(pre1.getOperand1())+1,getIndex(pre2.getOperand1())+1});
-			Skiplist now = new Skiplist();
-			for(int i=0; i<in.length;i++) {
-				int key1=in[i][getIndex(pre1.getOperand1())+1];
-				int key2=in[i][getIndex(pre2.getOperand1())+1];
-				now.insert(key1,key2,in[i][0],3,3);
+			if(pre1.equals(pre2)){
+				for(int i = 0; i < in.length; i++){
+					int key1=in[i][getIndex(pre1.getOperand1())+1];
+					int key2=in[i][getIndex(pre2.getOperand1())+1];
+					equalMap1.computeIfAbsent(key1, k -> new ArrayList<>()).add(in[i][0]);
+					equalMap2.computeIfAbsent(key2, k -> new ArrayList<>()).add(in[i][0]);
+				}
 			}
-			chains.add(now);
+			else{
+				sort(in, new int[] {getIndex(pre1.getOperand1())+1,getIndex(pre2.getOperand1())+1});
+				Skiplist now = new Skiplist();
+				for(int i=0; i<in.length;i++) {
+					int key1=in[i][getIndex(pre1.getOperand1())+1];
+					int key2=in[i][getIndex(pre2.getOperand1())+1];
+					now.insert(key1,key2,in[i][0],3,3);
+				}
+				chains.add(now);
+			}
 		}
 		else if(index21==2&&index4==-1) {
 			this.index21=index21;
@@ -71,7 +90,7 @@ public class Builder extends EvidenceSetBuilder {
 
 		else {
 			if(index21==6&&index4==6){
-				isCross = true;
+				cross = true;
 				this.addData1 = addData1;
 				this.addData2 = addData2;
 			}
@@ -127,6 +146,8 @@ public class Builder extends EvidenceSetBuilder {
 				sim = 1;
 			}
 		}
+		predicate1 = pre1.toString();
+		predicate2 = pre2.toString();
 	}
 
 	private void buildingchains(int[][] input,int flag,int type){
@@ -158,7 +179,7 @@ public class Builder extends EvidenceSetBuilder {
 			else{ if(count>0) {chains.get(in1).insert(key1,key2,input[i][0],flag,type);}}
 		}
 	}
-
+	@JSONField(serialize = false)
 	private int getIndex(ColumnOperand<?> operand1) {
 		// TODO Auto-generated method stub
 		for(Integer i:column.keySet()) {
@@ -213,7 +234,7 @@ public class Builder extends EvidenceSetBuilder {
 		});
 
 	}
-
+	@JSONField(serialize = false)
 	public void getEvidence(int pos1, int pos2, IEvidenceSet evidence, Collection<ColumnPair> pairs){
 		if(vioTuples.containsEntry(pos1,pos2)){
 			return;
@@ -229,7 +250,7 @@ public class Builder extends EvidenceSetBuilder {
 			skiplistnode p,q;
 			int key1,key2,add_key1,add_key2;
 
-			if(isCross){
+			if(cross){
 				key1=add_data[k][addData1+1];
 				key2=add_data[k][addData2+1];
 				add_key1 = add_data[k][getIndex(pre1.getOperand1())+1];
@@ -242,6 +263,20 @@ public class Builder extends EvidenceSetBuilder {
 				key2=add_data[k][getIndex(pre2.getOperand1())+1];
 				add_key1 = key1;
 				add_key2 = key2;
+			}
+			if(sim == 4 && pre1.equals(pre2)){
+				if(equalMap1.get(key1) == null){
+					equalMap1.put(key1, Lists.newArrayList(add_data[k][0]));
+				}
+				else{
+					List<Integer> list = equalMap1.get(key1);
+					for(int i : list) {
+						getEvidence(i,data.length-add_data.length+k,evidence,pairs);
+					}
+					list.add(add_data[k][0]);
+					equalMap1.put(key1, list);
+				}
+				continue;
 			}
 			boolean insert=true;
 			for(Skiplist l:chains) {
@@ -295,7 +330,7 @@ public class Builder extends EvidenceSetBuilder {
 						q=temp;
 					}
 					if(p.right!=null) p=p.right;
-					if(!isCross){
+					if(!cross){
 						while(p.key1>Integer.MIN_VALUE) {
 							int op01 = getop(key1,p.key1);
 							int op02= getop(key2,p.key2);
@@ -390,6 +425,7 @@ public class Builder extends EvidenceSetBuilder {
 
 		return set;
 	}
+	@JSONField(serialize = false)
 	public Collection<ColumnPair> getColumnPairs() {
 		Set<List<ParsedColumn<?>>> joinable = new HashSet<>();
 		Set<List<ParsedColumn<?>>> comparable = new HashSet<>();
@@ -458,4 +494,51 @@ public class Builder extends EvidenceSetBuilder {
 		return s;
 	}
 
+	public String getPredicate1() {
+		return predicate1;
+	}
+
+	public String getPredicate2() {
+		return predicate2;
+	}
+
+	public int getIndex21() {
+		return index21;
+	}
+
+	public int getIndex4() {
+		return index4;
+	}
+
+	public int getType() {
+		return type;
+	}
+
+	public int getFlag() {
+		return flag;
+	}
+
+	public int getSim() {
+		return sim;
+	}
+
+	public Map<Integer, String> getColumn() {
+		return column;
+	}
+
+	public boolean getCross() {
+		return cross;
+	}
+
+	public int getAddData1() {
+		return addData1;
+	}
+
+	public int getAddData2() {
+		return addData2;
+	}
+
+	public static Multimap<Integer, Integer> getVioTuples() {
+		return vioTuples;
+	}
 }

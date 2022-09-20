@@ -149,6 +149,7 @@ public class PredicateBitSet extends BitSet implements Iterable<Predicate> {
 //			}
 //			count++;
 //		}
+		s.append(")");
 		return s.toString();
 	}
 }

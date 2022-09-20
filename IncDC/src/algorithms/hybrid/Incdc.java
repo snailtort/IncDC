@@ -1,26 +1,30 @@
 package algorithms.hybrid;
 
-import ch.javasoft.bitset.LongBitSet;
 import chains.Builder;
 import chains.Chains;
-import com.carrotsearch.sizeof.RamUsageEstimator;
 import de.hpi.naumann.dc.cover.PrefixMinimalCoverSearch;
 import denialconstraints.DenialConstraint;
 import denialconstraints.DenialConstraintSet;
 import evidenceset.IEvidenceSet;
 import evidenceset.Repair;
 import evidenceset.build.EvidenceSetBuilder;
+import evidenceset.build.Operator;
 import input.ColumnPair;
 import input.Input;
 import input.OriginDC;
 import input.ParsedColumn;
+import predicates.Predicate;
 import predicates.PredicateBuilder;
+import predicates.operands.ColumnOperand;
+
+import java.io.*;
 import java.util.*;
 
 public class Incdc extends EvidenceSetBuilder {
     public long time;
 
-    public DenialConstraintSet run (Input data, PredicateBuilder predicates, OriginDC origin, double alpha, int n, int m, int size) throws Exception {
+    public DenialConstraintSet run (Input data, PredicateBuilder predicates, OriginDC origin, double alpha, int n, int m,
+                                    int size, File indexFile) throws Exception {
         ParsedColumn[] cols = data.getColumns();
         int[][] input = data.getInts();
 
@@ -56,16 +60,17 @@ public class Incdc extends EvidenceSetBuilder {
             if(set.size()<threshold)
                 columnSet.add(i);
         }
-        System.out.println("building index");
-        long indexstart=System.currentTimeMillis();
 
-        Chains chains = new Chains(origin.getTotal().getDc(), input_data, alpha, column,columnSet);
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(indexFile));
+        Chains chains = (Chains) ois.readObject();
+        ois.close();
+        for(Builder builder : chains.indexes){
+            builder.pre1 = strToPre(data, builder.predicate1);
+            builder.pre2 = strToPre(data, builder.predicate2);
+        }
 
-        long indexend=System.currentTimeMillis();
-        System.out.println("bulid index time : "+(indexend-indexstart)+" ms");
+
         System.out.println("Ind(E): " + chains.indexes.size());
-        System.out.println("Data size: "+ RamUsageEstimator.sizeOf(data)/(1024*1024)+" MB");
-        System.out.println("Index size: "+ RamUsageEstimator.sizeOf(chains.indexes)/(1024*1024)+" MB");
         System.out.println("-----------------------------------------------------------");
 
         long time = 0;
@@ -117,6 +122,57 @@ public class Incdc extends EvidenceSetBuilder {
         set3.removeAll(set2);
         System.out.println("invalid DC size(sigma-): "+set1.size());
         System.out.println("extend DC size(sigma+): "+set3.size());
+
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(indexFile));
+        oos.writeObject(chains);
+        oos.flush();
+        oos.close();
         return dcs;
+    }
+    private Predicate strToPre(Input input, String preString){
+        Predicate pre = new Predicate();
+        int columncount = input.getColumns().length;
+        ParsedColumn<?> [] col = input.getColumns();
+        boolean flag = false;
+        String col1 = preString.split(" ")[0];
+        String op = preString.split(" ")[1];
+        Operator oper=getoperator(op);
+        String col2 = preString.split(" ")[2];
+        //char num;
+        if(col2.charAt(col2.indexOf("t")+1)=='0'){
+            flag=true;
+        }
+        boolean flag1=false;
+        boolean flag2=false;
+        ColumnOperand operand1 = new ColumnOperand();
+        ColumnOperand operand2 = new ColumnOperand();
+        for(int i=0;i<columncount;i++) {
+            if(col[i].getName().equals(col1.substring(col1.indexOf("t")+3))) {
+                operand1=new ColumnOperand(col[i],0);
+                flag1=true;
+            }
+            if(col[i].getName().equals(col2.substring(col2.indexOf("t")+3))) {
+                if(flag) operand2=new ColumnOperand(col[i],0);
+                else operand2=new ColumnOperand(col[i],1);
+                flag2=true;
+            }
+            if(flag1 && flag2){
+                pre = new Predicate(oper,operand1,operand2);
+                break;
+            }
+        }
+        if(!flag1 || !flag2) System.out.println(col1 + " " +col2);
+        return pre;
+    }
+    public Operator getoperator(String s) {
+        switch(s) {
+            case ">=" : return Operator.GREATER_EQUAL;
+            case ">":return Operator.GREATER;
+            case "==":return Operator.EQUAL;
+            case "<": return Operator.LESS;
+            case "<=":return Operator.LESS_EQUAL;
+            case "<>": return Operator.UNEQUAL;
+        }
+        return null;
     }
 }
