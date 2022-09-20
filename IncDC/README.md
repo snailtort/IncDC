@@ -1,6 +1,6 @@
 # IncDC
 
-IncDC.jar needs six parameters: original data D, incremental data △D, DCs discovered on D, tuple numbers in D, tuple numbers in △D, index Ind($\Sigma$).
+IncDC.jar needs six parameters: original data D, incremental data △D, DCs discovered on D, tuple numbers in D, tuple numbers in △D, index Ind(Σ).
 
 For example, the command "java -jar IncDC.jar airport_original.csv airport_incremental.csv DC_airport_example.txt 30000 10000 airport_original_index.txt" is to run incremental DC discovery on D + △D, 
 where D is airport_original.csv, △D is airport_incremental.csv, DCs discovered on D is in DC_airport_example.txt, index is airport_original_index.txt. In this run, we use 30000 tuples in D and 10000 tuples in △D. 
