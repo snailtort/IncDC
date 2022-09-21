@@ -24,7 +24,9 @@ public class Main{
 
 
 		double alpha = 0.6;
-		if(args[3].contains("l=")) {String s=args[3].replaceAll("l=","");alpha=1-Double.parseDouble(s);}
+		if(args.length>=4){
+			if(args[3].contains("l=")) {String s=args[3].replaceAll("l=","");alpha=1-Double.parseDouble(s);}
+		}
 
 		File file = new File(line);
 		File dc = new File(dcline);
