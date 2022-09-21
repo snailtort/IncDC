@@ -130,26 +130,10 @@ public class PredicateBitSet extends BitSet implements Iterable<Predicate> {
 	public static final String AND = "^";
 	@Override
 	public String toString() {
-		StringBuffer s = new StringBuffer();
-		//s.append(NOT+"("+getPredicate(0).toString());
-		s.append(NOT+"(");
-		int count = 0;
-		Iterator<Predicate> it = this.iterator();
-		s.append(it.next().toString());
-		while(it.hasNext()){
-			s.append(AND+it.next().toString());
-		}
-//		for (Predicate predicate : this) {
-//			//s.append(AND+predicate.toString());
-//			if(count == 0){
-//				s.append(predicate.toString());
-//			}
-//			else{
-//				s.append(AND+predicate.toString());
-//			}
-//			count++;
-//		}
-		s.append(")");
-		return s.toString();
+		StringBuilder sb = new StringBuilder();
+		this.forEach(p -> sb.append(p + " "));
+		// this.forEach(p -> sb.append(p.getOperand1().getColumn().getName() + "" +
+		// p.getOperator().getShortString() + " "));
+		return sb.toString();
 	}
 }
